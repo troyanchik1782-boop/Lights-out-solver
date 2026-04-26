@@ -3,365 +3,75 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Lights Out — Решатель</title>
+<title>Lights Out</title>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&display=swap');
-
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-
-  body {
-    background: #0a0a0a;
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-family: 'Share Tech Mono', monospace;
-    color: #e0e0e0;
-    padding: 20px;
-  }
-
-  .panel {
-    background: linear-gradient(145deg, #1a1a1a, #111);
-    border: 2px solid #333;
-    border-radius: 12px;
-    padding: 32px 28px;
-    max-width: 500px;
-    width: 100%;
-    box-shadow: 0 0 40px rgba(0,0,0,0.8), inset 0 1px 0 rgba(255,255,255,0.05);
-    position: relative;
-    overflow: hidden;
-  }
-
-  .panel::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0;
-    height: 3px;
-    background: linear-gradient(90deg, transparent, #ff3300, #ff6600, #ff3300, transparent);
-  }
-
-  h1 {
-    font-family: 'Orbitron', sans-serif;
-    font-size: 18px;
-    font-weight: 900;
-    letter-spacing: 4px;
-    text-transform: uppercase;
-    color: #ff4400;
-    text-align: center;
-    margin-bottom: 6px;
-    text-shadow: 0 0 20px rgba(255,68,0,0.5);
-  }
-
-  .subtitle {
-    text-align: center;
-    font-size: 11px;
-    color: #555;
-    letter-spacing: 2px;
-    margin-bottom: 28px;
-  }
-
-  .section-label {
-    font-size: 11px;
-    letter-spacing: 3px;
-    color: #666;
-    text-transform: uppercase;
-    margin-bottom: 12px;
-  }
-
-  .lights-row {
-    display: flex;
-    gap: 4px;
-    justify-content: center;
-    margin-bottom: 24px;
-  }
-
-  .light-btn {
-    width: 34px;
-    height: 34px;
-    border-radius: 50%;
-    border: 3px solid #333;
-    cursor: pointer;
-    transition: all 0.15s;
-    position: relative;
-    outline: none;
-    flex-shrink: 0;
-  }
-
-  .light-btn.red {
-    background: radial-gradient(circle at 35% 35%, #ff6644, #cc2200);
-    border-color: #aa2200;
-    box-shadow: 0 0 12px rgba(255,50,0,0.6), inset 0 1px 0 rgba(255,255,255,0.2);
-  }
-
-  .light-btn.green {
-    background: radial-gradient(circle at 35% 35%, #88ff44, #22cc00);
-    border-color: #22aa00;
-    box-shadow: 0 0 16px rgba(100,255,50,0.8), 0 0 30px rgba(100,255,50,0.3), inset 0 1px 0 rgba(255,255,255,0.3);
-  }
-
-  .light-btn:hover {
-    transform: scale(1.08);
-    filter: brightness(1.2);
-  }
-
-  .light-btn:active { transform: scale(0.95); }
-
-  .light-number {
-    position: absolute;
-    bottom: -20px;
-    left: 50%;
-    transform: translateX(-50%);
-    font-size: 10px;
-    color: #444;
-  }
-
-  .lights-wrapper {
-    padding-bottom: 28px;
-  }
-
-  .btn-solve {
-    width: 100%;
-    padding: 14px;
-    background: linear-gradient(135deg, #cc2200, #ff4400);
-    border: none;
-    border-radius: 8px;
-    color: white;
-    font-family: 'Orbitron', sans-serif;
-    font-size: 13px;
-    font-weight: 700;
-    letter-spacing: 3px;
-    cursor: pointer;
-    transition: all 0.2s;
-    text-transform: uppercase;
-    box-shadow: 0 4px 20px rgba(255,68,0,0.3);
-    margin-bottom: 12px;
-  }
-
-  .btn-solve:hover {
-    background: linear-gradient(135deg, #ff3300, #ff6600);
-    box-shadow: 0 6px 30px rgba(255,68,0,0.5);
-    transform: translateY(-1px);
-  }
-
-  .btn-reset {
-    width: 100%;
-    padding: 10px;
-    background: transparent;
-    border: 1px solid #333;
-    border-radius: 8px;
-    color: #555;
-    font-family: 'Share Tech Mono', monospace;
-    font-size: 12px;
-    letter-spacing: 2px;
-    cursor: pointer;
-    transition: all 0.2s;
-    text-transform: uppercase;
-    margin-bottom: 24px;
-  }
-
-  .btn-reset:hover { border-color: #555; color: #888; }
-
-  .result {
-    background: #111;
-    border: 1px solid #222;
-    border-radius: 8px;
-    padding: 20px;
-    min-height: 80px;
-    display: none;
-  }
-
-  .result.visible { display: block; }
-
-  .result-label {
-    font-size: 10px;
-    letter-spacing: 3px;
-    color: #444;
-    text-transform: uppercase;
-    margin-bottom: 12px;
-  }
-
-  .result-steps {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 4px;
-    margin-bottom: 16px;
-  }
-
-  .step-badge {
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    background: radial-gradient(circle at 35% 35%, #88ff44, #22cc00);
-    border: 2px solid #22aa00;
-    box-shadow: 0 0 12px rgba(100,255,50,0.6);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-family: 'Orbitron', sans-serif;
-    font-weight: 700;
-    font-size: 14px;
-    color: #003300;
-    animation: pulse 1.5s ease-in-out infinite;
-  }
-
-  .step-badge:nth-child(2) { animation-delay: 0.2s; }
-  .step-badge:nth-child(3) { animation-delay: 0.4s; }
-  .step-badge:nth-child(4) { animation-delay: 0.6s; }
-  .step-badge:nth-child(5) { animation-delay: 0.8s; }
-
-  @keyframes pulse {
-    0%, 100% { box-shadow: 0 0 12px rgba(100,255,50,0.6); }
-    50% { box-shadow: 0 0 24px rgba(100,255,50,1), 0 0 40px rgba(100,255,50,0.4); }
-  }
-
-  .result-note {
-    font-size: 11px;
-    color: #555;
-    line-height: 1.6;
-  }
-
-  .no-solution {
-    color: #ff4400;
-    font-size: 12px;
-    text-align: center;
-  }
-
-  .divider {
-    border: none;
-    border-top: 1px solid #1e1e1e;
-    margin: 20px 0;
-  }
-
-  .hint {
-    font-size: 10px;
-    color: #333;
-    text-align: center;
-    letter-spacing: 1px;
-    line-height: 1.6;
-  }
+* { margin:0; padding:0; box-sizing:border-box; }
+body { background:#0a0a0a; min-height:100vh; display:flex; align-items:center; justify-content:center; font-family:monospace; color:#e0e0e0; padding:16px; }
+.panel { background:#1a1a1a; border:2px solid #2a2a2a; border-radius:16px; padding:24px 16px; width:100%; max-width:380px; }
+h1 { text-align:center; font-size:18px; letter-spacing:4px; color:#ff4400; text-shadow:0 0 20px rgba(255,68,0,0.6); margin-bottom:4px; }
+.sub { text-align:center; font-size:10px; color:#444; letter-spacing:2px; margin-bottom:20px; }
+.lights { display:flex; gap:3px; justify-content:center; margin-bottom:8px; }
+.light { width:36px; height:36px; border-radius:50%; cursor:pointer; border:2px solid #aa2200; background:radial-gradient(circle at 35% 35%,#ff6644,#cc2200); box-shadow:0 0 8px rgba(255,50,0,0.5); transition:all .15s; flex-shrink:0; }
+.light.on { border-color:#22aa00; background:radial-gradient(circle at 35% 35%,#88ff44,#22cc00); box-shadow:0 0 12px rgba(100,255,50,0.9); }
+.nums { display:flex; gap:3px; justify-content:center; margin-bottom:18px; }
+.num { width:36px; text-align:center; font-size:10px; color:#333; flex-shrink:0; }
+.btn { width:100%; padding:12px; border:none; border-radius:8px; font-family:monospace; font-size:12px; letter-spacing:2px; cursor:pointer; margin-bottom:8px; }
+.solve { background:linear-gradient(135deg,#cc2200,#ff4400); color:white; font-weight:700; }
+.reset { background:transparent; border:1px solid #2a2a2a; color:#444; }
+.result { background:#0d0d0d; border:1px solid #1e1e1e; border-radius:10px; padding:16px; margin-top:8px; display:none; }
+.steps { display:flex; flex-wrap:wrap; gap:6px; margin:10px 0; }
+.badge { width:36px; height:36px; border-radius:50%; background:radial-gradient(circle at 35% 35%,#88ff44,#22cc00); border:2px solid #22aa00; box-shadow:0 0 10px rgba(100,255,50,0.7); display:flex; align-items:center; justify-content:center; font-weight:700; font-size:14px; color:#003300; }
+.rlabel { font-size:10px; color:#444; letter-spacing:2px; }
+.rnote { font-size:11px; color:#555; margin-top:6px; }
+.err { color:#ff4400; text-align:center; font-size:12px; }
 </style>
 </head>
 <body>
 <div class="panel">
-  <h1>Lights Out</h1>
-  <div class="subtitle">// РЕШАТЕЛЬ ПАНЕЛИ //</div>
-
-  <div class="section-label">► Текущее состояние</div>
-  <div class="lights-wrapper">
-    <div class="lights-row" id="lights"></div>
-  </div>
-
-  <button class="btn-solve" onclick="solve()">⚡ РЕШИТЬ</button>
-  <button class="btn-reset" onclick="resetAll()">↺ СБРОСИТЬ ВСЁ В КРАСНЫЙ</button>
-
-  <div class="result" id="result">
-    <div class="result-label">► Нажать кнопки по порядку:</div>
-    <div class="result-steps" id="steps"></div>
-    <div class="result-note" id="result-note"></div>
-  </div>
-
-  <hr class="divider">
-  <div class="hint">Нажимай на лампочки чтобы переключить цвет<br>затем нажми РЕШИТЬ</div>
+  <h1>LIGHTS OUT</h1>
+  <div class="sub">// РЕШАТЕЛЬ //</div>
+  <div class="lights" id="lights"></div>
+  <div class="nums" id="nums"></div>
+  <button class="btn solve" onclick="doSolve()">⚡ РЕШИТЬ</button>
+  <button class="btn reset" onclick="doReset()">↺ СБРОСИТЬ</button>
+  <div class="result" id="result"></div>
 </div>
-
 <script>
-  const N = 8;
-  let state = Array(N).fill(0); // 0 = красный, 1 = зелёный
-
-  function renderLights() {
-    const row = document.getElementById('lights');
-    row.innerHTML = '';
-    for (let i = 0; i < N; i++) {
-      const btn = document.createElement('button');
-      btn.className = 'light-btn ' + (state[i] ? 'green' : 'red');
-      btn.title = `Лампочка ${i+1}`;
-      btn.onclick = () => toggleLight(i);
-      const num = document.createElement('span');
-      num.className = 'light-number';
-      num.textContent = i + 1;
-      btn.appendChild(num);
-      row.appendChild(btn);
+const N=8, state=Array(N).fill(0);
+function render(){
+  const L=document.getElementById('lights');
+  L.innerHTML='';
+  state.forEach((v,i)=>{
+    const b=document.createElement('div');
+    b.className='light'+(v?' on':'');
+    b.onclick=()=>{state[i]^=1;render();document.getElementById('result').style.display='none';};
+    L.appendChild(b);
+  });
+  const nums=document.getElementById('nums');
+  if(!nums.children.length) for(let i=0;i<N;i++){const s=document.createElement('div');s.className='num';s.textContent=i+1;nums.appendChild(s);}
+}
+function press(s,i){const ns=[...s];ns[i]^=1;ns[(i-1+N)%N]^=1;ns[(i+1)%N]^=1;return ns;}
+function doSolve(){
+  for(let mask=0;mask<256;mask++){
+    let s=[...state];
+    for(let i=0;i<N;i++) if(mask&(1<<i)) s=press(s,i);
+    if(s.every(v=>v===1)){
+      const p=[];for(let i=0;i<N;i++) if(mask&(1<<i)) p.push(i+1);
+      showResult(p);return;
     }
   }
-
-  function toggleLight(i) {
-    state[i] ^= 1;
-    renderLights();
-    document.getElementById('result').classList.remove('visible');
-  }
-
-  function resetAll() {
-    state = Array(N).fill(0);
-    renderLights();
-    document.getElementById('result').classList.remove('visible');
-  }
-
-  // Применить нажатие кнопки i к состоянию (массив длины N), по mod 2
-  function applyPress(s, i) {
-    const ns = [...s];
-    ns[i] ^= 1;
-    ns[(i - 1 + N) % N] ^= 1;
-    ns[(i + 1) % N] ^= 1;
-    return ns;
-  }
-
-  function solve() {
-    // Полный перебор всех 2^8 = 256 комбинаций нажатий
-    const target = Array(N).fill(1);
-
-    for (let mask = 0; mask < (1 << N); mask++) {
-      let s = [...state];
-      for (let i = 0; i < N; i++) {
-        if (mask & (1 << i)) {
-          s = applyPress(s, i);
-        }
-      }
-      if (s.every((v, i) => v === target[i])) {
-        // Нашли решение
-        const presses = [];
-        for (let i = 0; i < N; i++) {
-          if (mask & (1 << i)) presses.push(i + 1);
-        }
-        showResult(presses);
-        return;
-      }
-    }
-
-    // Решения нет
-    showNoSolution();
-  }
-
-  function showResult(presses) {
-    const resultDiv = document.getElementById('result');
-    const stepsDiv = document.getElementById('steps');
-    const noteDiv = document.getElementById('result-note');
-
-    stepsDiv.innerHTML = '';
-    if (presses.length === 0) {
-      stepsDiv.innerHTML = '<span style="color:#22cc00;font-size:13px">✓ Уже все зелёные!</span>';
-      noteDiv.textContent = '';
-    } else {
-      presses.forEach(p => {
-        const badge = document.createElement('div');
-        badge.className = 'step-badge';
-        badge.textContent = p;
-        stepsDiv.appendChild(badge);
-      });
-      noteDiv.textContent = `Нажать ${presses.length} кнопк${presses.length === 1 ? 'у' : presses.length < 5 ? 'и' : ''}: ${presses.join(' → ')}`;
-    }
-
-    resultDiv.querySelector('.no-solution')?.remove();
-    resultDiv.classList.add('visible');
-  }
-
-  function showNoSolution() {
-    const resultDiv = document.getElementById('result');
-    document.getElementById('steps').innerHTML = '<span class="no-solution">✗ Решения не существует для этой комбинации</span>';
-    document.getElementById('result-note').textContent = 'Попробуй нажать RESET в самой игре.';
-    resultDiv.classList.add('visible');
-  }
-
-  renderLights();
+  const r=document.getElementById('result');
+  r.innerHTML='<div class="err">✗ Решения нет — нажми RESET в игре</div>';
+  r.style.display='block';
+}
+function showResult(p){
+  const r=document.getElementById('result');
+  if(!p.length){r.innerHTML='<div style="color:#22cc00;text-align:center">✓ Уже всё зелёное!</div>';}
+  else{r.innerHTML=`<div class="rlabel">► НАЖАТЬ:</div><div class="steps">${p.map(x=>`<div class="badge">${x}</div>`).join('')}</div><div class="rnote">${p.join(' → ')}</div>`;}
+  r.style.display='block';
+}
+function doReset(){state.fill(0);render();document.getElementById('result').style.display='none';}
+render();
 </script>
 </body>
-  </html>
+</html>
